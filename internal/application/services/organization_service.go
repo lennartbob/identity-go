@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/vondr/identity-go/internal/application/repositories"
-	"github.com/vondr/identity-go/internal/core"
 	"github.com/vondr/identity-go/internal/infrastructure/database/models"
 )
 

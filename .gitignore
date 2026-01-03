@@ -15,6 +15,8 @@ bin/
 # Dependency directories
 vendor/
 
+.env
+
 # Go workspace file
 go.work
 
@@ -53,6 +55,11 @@ debug
 
 # GeoIP database (large file)
 *.mmdb
+
+# Swagger generated files (but keep swagger_info.go)
+docs/docs.go
+docs/swagger.json
+docs/swagger.yaml
 
 # Docker volumes (if mounted locally)
 docker-data/

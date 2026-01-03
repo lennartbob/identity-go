@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/vondr/identity-go/docs"
 	"github.com/vondr/identity-go/internal/core/oauth"
 )
 
@@ -112,6 +113,24 @@ func generateState() (string, error) {
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
+// MicrosoftLogin godoc
+// @Summary Microsoft OAuth login
+// @Description Redirect user to Microsoft for authentication
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param return_to query string false "URL to redirect to after successful login"
+// @Success 302 {string} string "Redirect to Microsoft"
+// @Router /auth/microsoft/login [get]
+// MicrosoftLogin godoc
+// @Summary Microsoft OAuth login
+// @Description Redirect user to Microsoft for authentication
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param return_to query string false "URL to redirect to after successful login"
+// @Success 302 {string} string "Redirect to Microsoft"
+// @Router /auth/microsoft/login [get]
 func (h *AuthHandler) MicrosoftLogin(c *gin.Context) {
 	returnTo := c.Query("return_to")
 
@@ -125,6 +144,17 @@ func (h *AuthHandler) MicrosoftLogin(c *gin.Context) {
 	c.Redirect(http.StatusFound, authURL)
 }
 
+// MicrosoftCallback godoc
+// @Summary Microsoft OAuth callback
+// @Description Handle OAuth callback from Microsoft - exchanges code for user info and returns it
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param code query string true "Authorization code from Microsoft"
+// @Param state query string false "OAuth state parameter"
+// @Success 200 {object} map[string]string "User info returned"
+// @Failure 400 {object} map[string]string "Bad request"
+// @Router /auth/microsoft/callback [get]
 func (h *AuthHandler) MicrosoftCallback(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -152,6 +182,14 @@ func (h *AuthHandler) MicrosoftCallback(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "OAuth callback received", "email": email, "microsoft_id": microsoftID})
 }
 
+// Logout godoc
+// @Summary Logout user
+// @Description Logout user by deleting session and clearing cookie
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} map[string]string "Logged out"
+// @Router /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -173,6 +211,16 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "logged_out"})
 }
 
+// Me godoc
+// @Summary Get current user
+// @Description Get current authenticated user information
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Security SessionToken
+// @Success 200 {object} map[string]string "User information"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Router /auth/me [get]
 func (h *AuthHandler) Me(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {

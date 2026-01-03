@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/vondr/identity-go/docs"
 	"github.com/vondr/identity-go/internal/api/types"
 )
 
@@ -147,6 +148,19 @@ func buildErrorRedirectURL(errorLoginURL string, errorCode string) string {
 	return errorLoginURL + "/" + errorCode
 }
 
+// Verify godoc
+// @Summary Traefik forward auth
+// @Description Traefik forward auth endpoint - validates session or M2M token
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param x-vondr-auth header string false "M2M token"
+// @Param x-vondr-user-id header string false "User ID (required with M2M token)"
+// @Success 200 {header} string "Headers: x-vondr-user-id, x-vondr-email, x-vondr-organization-id"
+// @Success 302 {string} string "Redirect to login"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Router /auth/verify [get]
 func (h *ForwardAuthHandler) Verify(c *gin.Context) {
 	ctx := c.Request.Context()
 

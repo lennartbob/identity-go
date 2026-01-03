@@ -98,7 +98,7 @@ docker-compose up -d
 Services:
 - `db` - PostgreSQL database
 - `keydb` - Redis cache
-- `identity-api-public` - Public authentication API (port 8088)
+- `identity-api-public` - Public authentication API
 - `identity-api` - Protected API (port 8089)
 
 ### Local Development
@@ -130,46 +130,14 @@ go build -o bin/protected-api ./cmd/protected
 
 - `GET /healthz` - Health check
 - `GET /auth/microsoft/login` - Microsoft OAuth login
-- `GET /auth/microsoft/callback` - Microsoft OAuth callback
+- `GET /auth/microsoft/callback` - Microsoft OAuth callback (returns OAuth info)
 - `POST /auth/logout` - Logout
+- `GET /auth/me` - Get current user (requires session)
 
 ### Protected API (Authenticated Endpoints)
 
 - `GET /healthz` - Health check
-- `GET /auth/verify` - Traefik forward auth endpoint
-- `GET /api/v1/auth/me` - Get current user
-
-#### Organizations (under `/api/v1/organizations`)
-
-- `GET /` - List organizations
-- `POST /` - Create organization
-- `GET /{id}` - Get organization details
-- `PUT /{id}` - Update organization
-- `DELETE /{id}` - Delete organization
-
-#### Members (under `/api/v1/organizations/{org_id}/members`)
-
-- `GET /` - List members
-- `POST /` - Create member
-- `GET /{id}` - Get member
-- `PUT /{id}` - Update member
-- `DELETE /{id}` - Delete member
-
-#### Apps (under `/api/v1/organizations/{org_id}/apps`)
-
-- `GET /` - List apps
-- `POST /` - Create app
-- `GET /{id}` - Get app
-- `PUT /{id}` - Update app
-- `DELETE /{id}` - Delete app
-
-#### Groups (under `/api/v1/organizations/{org_id}/groups`)
-
-- `GET /` - List groups
-- `POST /` - Create group
-- `GET /{id}` - Get group
-- `PUT /{id}` - Update group
-- `DELETE /{id}` - Delete group
+- `GET/HEAD/OPTIONS /auth/verify` - Traefik forward auth endpoint (session or M2M token validation)
 
 ## Architecture
 
@@ -202,12 +170,13 @@ go build -o bin/protected-api ./cmd/protected
 
 The following components from the plan are **not yet implemented**:
 
-- [ ] Public API handlers (login, callback, logout) - scaffolding only
 - [ ] Protected API handlers (organizations, members, apps, groups, invitations)
-- [ ] Forward auth endpoint (`/auth/verify`) for Traefik
+- [ ] InvitationService (create, list, validate, accept)
 - [ ] Email service for invitations (Microsoft Graph API)
+- [ ] Complete OAuth callback implementation (session creation, member linking)
+- [ ] Integration tests
 
-These need to be implemented to match the full functionality of the Python version.
+The public auth endpoints and forward auth are implemented with basic scaffolding. The protected management endpoints (organizations, members, apps, groups, invitations) need to be fully implemented.
 
 ## Differences from Python Version
 

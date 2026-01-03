@@ -8,6 +8,11 @@ services:
       POSTGRES_DB: identity
     volumes:
       - identity-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U identity"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   keydb:
     image: eqalpha/keydb:latest
@@ -31,8 +36,10 @@ services:
       RUN_DB_SETUP: "false"
       GEOIP_DB_PATH: /app/geoip/GeoLite2-Country.mmdb
     depends_on:
-      - db
-      - keydb
+      db:
+        condition: service_healthy
+      keydb:
+        condition: service_healthy
     # ports:
     #   - "8088:8000"
 
@@ -48,8 +55,10 @@ services:
       RUN_DB_SETUP: "true"
       GEOIP_DB_PATH: /app/geoip/GeoLite2-Country.mmdb
     depends_on:
-      - db
-      - keydb
+      db:
+        condition: service_healthy
+      keydb:
+        condition: service_healthy
     ports:
       - "8089:8000"
     labels:

@@ -1,10 +1,13 @@
 package main
 
 import (
+	_ "github.com/vondr/identity-go/docs"
 	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 	"github.com/vondr/identity-go/internal/api/middleware"
 	"github.com/vondr/identity-go/internal/api/protected"
 	"github.com/vondr/identity-go/internal/core"
@@ -57,6 +60,8 @@ func main() {
 	r.GET("/healthz", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
+
+	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	port := os.Getenv("PORT")
 	if port == "" {
