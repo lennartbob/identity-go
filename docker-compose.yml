@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: identity
+      POSTGRES_PASSWORD: identity
+      POSTGRES_DB: identity
+    volumes:
+      - identity-db-data:/var/lib/postgresql/data
+
+  keydb:
+    image: eqalpha/keydb:latest
+    restart: unless-stopped
+    command: keydb-server --save "" --appendonly no --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "keydb-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  identity-api-public:
+    build:
+      context: .
+    command: ["/app/public-api"]
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://identity:identity@db:5432/identity
+      KEYDB_URL: redis://keydb:6379/0
+      RUN_DB_SETUP: "false"
+      GEOIP_DB_PATH: /app/geoip/GeoLite2-Country.mmdb
+    depends_on:
+      - db
+      - keydb
+    # ports:
+    #   - "8088:8000"
+
+  identity-api:
+    build:
+      context: .
+    command: ["/app/protected-api"]
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://identity:identity@db:5432/identity
+      KEYDB_URL: redis://keydb:6379/0
+      RUN_DB_SETUP: "true"
+      GEOIP_DB_PATH: /app/geoip/GeoLite2-Country.mmdb
+    depends_on:
+      - db
+      - keydb
+    ports:
+      - "8089:8000"
+    labels:
+      - "traefik.http.middlewares.vondr-auth@file"
+
+volumes:
+  identity-db-data:
